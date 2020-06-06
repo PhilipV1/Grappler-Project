@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 
 public class MouseLook : MonoBehaviour
 {
-
+    public enum CameraRotation {RotationY, RotationX }
+    public CameraRotation rotationType;
     public float mouseSpeed;
     public Transform playerObject;
     public Transform cameraHolder;
@@ -22,7 +24,7 @@ public class MouseLook : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+       
         mouseSpeed = 60.0f;
         center = this.transform.rotation;
     }
@@ -43,51 +45,35 @@ public class MouseLook : MonoBehaviour
         float playerEulerY = playerObject.transform.rotation.eulerAngles.y;
   
         //Using quaternions
-        Quaternion yQuaternion = Quaternion.AngleAxis(mouseX, Vector3.right);
+        Quaternion horizontalQ = Quaternion.AngleAxis(mouseX, playerObject.up);
+        Quaternion verticalQ = Quaternion.AngleAxis(mouseY, -playerObject.right);
+        Quaternion zQuaternion = Quaternion.AngleAxis(0, this.transform.forward);
 
-        //transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
 
         if (PlayerMovement.Instance.isGrounded)
         {
-
-            //Having problems with jumping. Sometimes after landing the next jump will flip the camera as if the character had a wider angle than 60 degrees away from the camera and therefore clamping it
+            //rotating the player according to where the camera is looking
             playerObject.transform.eulerAngles = new Vector3(playerObject.transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, playerObject.rotation.eulerAngles.z);
-            transform.eulerAngles = new Vector3(pitch, yaw, 0);
+
+          
+            //Handle rotation around the Y axis with quaternions to be able to clamp properly while also keeping the quaternion multiplication using only one axis(no Z-axis rotation)
+            Quaternion tempCamRot = this.transform.localRotation * horizontalQ;
+            
+            this.transform.localRotation = tempCamRot;
+            this.transform.eulerAngles = new Vector3(pitch, this.transform.eulerAngles.y, 0);
+
         }
         else
         {
-     
-            float angle = Vector3.Angle(playerObject.transform.forward, transform.forward);
+            Quaternion tempRotY = this.transform.localRotation * horizontalQ;
 
-            //Fix the mirror clamping rotation caused by the euler rotation going from 0-360
-            //When jumping, clamp the cameras rotation by 60 degrees negative and positive from the players Y rotation
-            //float minClamp = (playerObject.transform.rotation.eulerAngles.y + 300) % 360;
-            //float maxClamp = (playerObject.transform.rotation.eulerAngles.y + 60) % 360;
-
-            //Transform EULERANGLES TO -180/180 INSTEAD OF 0-360
-            if (playerEulerY > 180)
+            if (Quaternion.Angle(playerObject.rotation, tempRotY)<maxAngle)
             {
-                float newEulerY = playerEulerY - 360;
-                maxDegreeY = newEulerY + maxAngle;
-                minDegreeY = newEulerY - maxAngle;
+                this.transform.localRotation = tempRotY;              
             }
-            else
-            {
-                maxDegreeY = playerEulerY + maxAngle;
-                minDegreeY = playerEulerY - maxAngle;
-            }
-
-            yaw = EulerConverter(yaw);
-            //CAMERA FLIPS FROM CLAMPING
-            yaw = Mathf.Clamp(yaw, minDegreeY, maxDegreeY);
-
-            //if (Quaternion.Angle(yQuaternion, playerObject.transform.rotation) < maxAngle)
-            //{
-                
-            //}
-
-            transform.eulerAngles = new Vector3(pitch, yaw, 0);
+            this.transform.eulerAngles = new Vector3(pitch, this.transform.eulerAngles.y, 0);
         }
+
     }
     void SetPositionToPlayerModel()
     {
@@ -129,5 +115,10 @@ public class MouseLook : MonoBehaviour
             retVal = eulerAngle;
         }
         return retVal;
+    }
+
+    void QuaternionRotation()
+    {
+
     }
 }
