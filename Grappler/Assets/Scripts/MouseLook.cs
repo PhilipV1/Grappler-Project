@@ -11,22 +11,17 @@ public class MouseLook : MonoBehaviour
     public Transform playerObject;
     public Transform cameraHolder;
 
-    Quaternion center;
 
     float pitch = 0.0f;
-    float yaw = 0.0f;
 
     float maxAngle = 85.0f;
-    float maxDegreeY = 0.0f;
-    float minDegreeY = 0.0f;
+
 
 
     // Start is called before the first frame update
     void Start()
     {
-       
         mouseSpeed = 60.0f;
-        center = this.transform.rotation;
     }
 
     // Update is called once per frame

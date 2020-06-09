@@ -9,6 +9,13 @@ public class PlayerMovement : MonoBehaviour
 
     public static PlayerMovement Instance    { get { return _instance; } }
 
+    private enum PlayerState
+    {
+        Normal,
+        HookThrow,
+        HookFlying
+    };
+
 
     private void Awake()
     {
@@ -22,19 +29,20 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-
     [HideInInspector]public CharacterController charController;
+
+    //Variable for storing the player state
+    private PlayerState state;
 
     //Movement speed multiplier for moving in x and z axis
     float moveSpeed = 10.0f;
 
-    //Jumping speed and gravity multipliers
+    //Jumping and gravity variables
     float jumpHeight = 3.5f;
     float gravity = -9.81f * 2;
     float yVelocity = 0.0f;
     public float airMultiplier = 0.6f;
     Vector3 jumpDirVector;
-
     [SerializeField]float timeToHighestPoint;
     [SerializeField]float airTimeCounter;
     [SerializeField] float totalAirTime;
@@ -58,6 +66,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        state = PlayerState.Normal;
         charController = GetComponent<CharacterController>();
         timeToHighestPoint = TimeToHighestJumpPoint();
         isJumping = false;
@@ -70,10 +79,13 @@ public class PlayerMovement : MonoBehaviour
     {
         if (GameManager.gameState == GameManager.GameState.Playing)
         {
-            isGrounded = CheckIfGrounded();
-            GetPlayerXZVelocity();
-            GetJumpVelocity();
-            MovePlayer();
+            if (state == PlayerState.Normal)
+            {
+                isGrounded = CheckIfGrounded();
+                GetPlayerXZVelocity();
+                GetJumpVelocity();
+                MovePlayer();
+            }
         }
     }
     //Makes the character jump based on a formula using jump height
@@ -85,7 +97,6 @@ public class PlayerMovement : MonoBehaviour
             yVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
             isJumping = true;
         }
-
     }
     void GetPlayerXZVelocity()
     {
@@ -99,11 +110,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            if (zMovement < -0.1f)
-            {
-                zMovement = -0.1f;
-            }
-            Vector3 tempVector = transform.right * xMovement * moveSpeed * Time.deltaTime + transform.forward * zMovement *moveSpeed * Time.deltaTime;
+            //Vector3 tempVector = transform.right * xMovement * moveSpeed * Time.deltaTime + transform.forward * zMovement *moveSpeed * Time.deltaTime;
             velocity = jumpDirVector;
         }
     }
