@@ -1,12 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 
 public class PlayerMovement : MonoBehaviour
 {
     private static PlayerMovement _instance;
 
     public static PlayerMovement Instance    { get { return _instance; } }
+
+    private enum PlayerState
+    {
+        Normal,
+        HookThrow,
+        HookFlying
+    };
 
 
     private void Awake()
@@ -21,17 +29,20 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-
     [HideInInspector]public CharacterController charController;
+
+    //Variable for storing the player state
+    private PlayerState state;
 
     //Movement speed multiplier for moving in x and z axis
     float moveSpeed = 10.0f;
 
-    //Jumping speed and gravity multipliers
-    float jumpHeight = 1.5f;
+    //Jumping and gravity variables
+    float jumpHeight = 3.5f;
     float gravity = -9.81f * 2;
     float yVelocity = 0.0f;
-    public float airMultiplier = 0.4f;
+    public float airMultiplier = 0.6f;
+    Vector3 jumpDirVector;
     [SerializeField]float timeToHighestPoint;
     [SerializeField]float airTimeCounter;
     [SerializeField] float totalAirTime;
@@ -45,7 +56,7 @@ public class PlayerMovement : MonoBehaviour
 
     //using the Physics.CheckSphere to see if the player is grounded. The function will only check against anything that is masked as ground
     public Transform groundSphere;
-    float groundRadius = 0.5f;
+    float groundRadius = 0.7f;
     public LayerMask groundMask;
    
     //Check if the player is currently jumping or grounded
@@ -55,6 +66,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        state = PlayerState.Normal;
         charController = GetComponent<CharacterController>();
         timeToHighestPoint = TimeToHighestJumpPoint();
         isJumping = false;
@@ -67,10 +79,13 @@ public class PlayerMovement : MonoBehaviour
     {
         if (GameManager.gameState == GameManager.GameState.Playing)
         {
-            isGrounded = CheckIfGrounded();
-            GetPlayerXZVelocity();
-            GetJumpVelocity();
-            MovePlayer();
+            if (state == PlayerState.Normal)
+            {
+                isGrounded = CheckIfGrounded();
+                GetPlayerXZVelocity();
+                GetJumpVelocity();
+                MovePlayer();
+            }
         }
     }
     //Makes the character jump based on a formula using jump height
@@ -78,12 +93,10 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
+            jumpDirVector = velocity;
             yVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
             isJumping = true;
         }
-
-        //yVelocity += gravity * Time.deltaTime;
-        //velocity.y = yVelocity * Time.deltaTime;
     }
     void GetPlayerXZVelocity()
     {
@@ -97,11 +110,9 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            Vector3 tempVector = transform.right * xMovement * moveSpeed * airMultiplier * Time.deltaTime + transform.forward * zMovement *moveSpeed * Time.deltaTime;
-            velocity = tempVector;
-
+            //Vector3 tempVector = transform.right * xMovement * moveSpeed * Time.deltaTime + transform.forward * zMovement *moveSpeed * Time.deltaTime;
+            velocity = jumpDirVector;
         }
-
     }
     float TimeToHighestJumpPoint()
     {
@@ -149,12 +160,11 @@ public class PlayerMovement : MonoBehaviour
             {
                 //Checking if the player touches the ground after jumping and sets isJumping to false and resets the air timer
                 isJumping = false;
+                jumpDirVector = Vector3.zero;
                 totalAirTime = airTimeCounter;
                 ResetAirTimer();
                 return true;
-
             }
-
         }
         return false;
     }

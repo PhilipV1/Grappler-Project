@@ -13,13 +13,9 @@ public class PanelManager : MonoBehaviour
     public GameObject playerObject;
     public GameObject cameraObject;
 
-    public Text playerText;
-    public Text cameraText;
     // Start is called before the first frame update
     void Start()
-    {
-        playerText.text = "Player Rotation: ";
-        cameraText.text = "Camera Rotation: ";
+    { 
         Cursor.lockState = CursorLockMode.Locked;
         pauseUI.SetActive(false);
         GameManager.gameState = GameManager.GameState.Playing;
@@ -28,10 +24,6 @@ public class PanelManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-
-        SetText(playerObject.transform.rotation.eulerAngles.y, cameraObject.transform.rotation.eulerAngles.y);
-
         if (Cursor.lockState == CursorLockMode.Locked)
         {
             cursorLocked = true;
@@ -61,11 +53,4 @@ public class PanelManager : MonoBehaviour
             }
         }
     }
-
-    void SetText(float pValue, float cValue)
-    {
-        playerText.text = "Player Rotation: " + pValue;
-        cameraText.text = "Camera Rotation: " + cValue;
-    }
-
 }
