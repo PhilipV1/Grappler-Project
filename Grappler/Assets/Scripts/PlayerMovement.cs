@@ -56,7 +56,7 @@ public class PlayerMovement : MonoBehaviour
 
     //using the Physics.CheckSphere to see if the player is grounded. The function will only check against anything that is masked as ground
     public Transform groundSphere;
-    float groundRadius = 0.7f;
+    float groundRadius = 0.6f;
     public LayerMask groundMask;
    
     //Check if the player is currently jumping or grounded
