@@ -168,4 +168,15 @@ public class PlayerMovement : MonoBehaviour
         }
         return false;
     }
+
+   public void ResetPosition()
+    {
+        Vector3 worldOrigin = new Vector3(0.0f, 5.5f, 0.0f);
+        velocity = Vector3.zero;
+        jumpDirVector = Vector3.zero;
+        charController.enabled = false;
+        charController.transform.position = worldOrigin;
+        charController.transform.rotation = Quaternion.identity;
+        charController.enabled = true;
+    }
 }
