@@ -98,8 +98,7 @@ public class PlayerMovement : MonoBehaviour
             isJumping = true;
         }
     }
-    void GetPlayerXZVelocity()
-    {
+    void GetPlayerXZVelocity()    {
         float xMovement = Input.GetAxis("Horizontal");
         float zMovement = Input.GetAxis("Vertical");
         xAxis = xMovement;
