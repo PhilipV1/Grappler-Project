@@ -93,6 +93,10 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
+            if (velocity.z > 0.07f || velocity.x > 0.07f)
+            {
+                Debug.LogError("Jumpboost Bug");
+            }
             jumpDirVector = velocity;
             yVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
             isJumping = true;
@@ -105,11 +109,21 @@ public class PlayerMovement : MonoBehaviour
         zAxis = zMovement;
         if (isGrounded)
         {
-            velocity = transform.right * xMovement * moveSpeed * Time.deltaTime + transform.forward * zMovement * moveSpeed * Time.deltaTime;
+            Vector3 tempVector = transform.right * xMovement + transform.forward * zMovement;
+            tempVector.Normalize();
+            tempVector *= moveSpeed;
+            // velocity.Normalize();
+            // float targetSpeed = Mathf.Min(velocity.magnitude, 1.0f);
+            // velocity *= targetSpeed;
+            velocity = tempVector;
+
         }
         else
         {
-            //Vector3 tempVector = transform.right * xMovement * moveSpeed * Time.deltaTime + transform.forward * zMovement *moveSpeed * Time.deltaTime;
+
+            Vector3 tempVector = transform.right * xMovement + transform.forward * zMovement;
+            tempVector.Normalize();
+            tempVector *= moveSpeed;
             velocity = jumpDirVector;
         }
     }
@@ -134,14 +148,14 @@ public class PlayerMovement : MonoBehaviour
         if (!isGrounded)
         {
             yVelocity += gravity * Time.deltaTime;
-            velocity.y = yVelocity * Time.deltaTime;
+            velocity.y = yVelocity;
         }
         else
         {
             velocity.y = -0.1f * Time.deltaTime;
         }
 
-        charController.Move(velocity);
+        charController.Move(velocity * Time.deltaTime);
     }
     //Checks if the player is currently on the ground
   public bool CheckIfGrounded()
