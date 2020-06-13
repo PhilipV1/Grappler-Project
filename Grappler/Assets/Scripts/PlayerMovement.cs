@@ -30,12 +30,17 @@ public class PlayerMovement : MonoBehaviour
     }
 
     [HideInInspector]public CharacterController charController;
+    public GameObject playerCam;
 
     //Variable for storing the player state
     private PlayerState state;
 
     //Movement speed multiplier for moving in x and z axis
     float moveSpeed = 10.0f;
+    float accel = 10.0f;
+    float dampSpeed = 0.3f;
+    float xVelocity = 0.0f;
+    float zVelocity = 0.0f;
 
     //Jumping and gravity variables
     float jumpHeight = 3.5f;
@@ -93,10 +98,6 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
-            if (velocity.z > 0.07f || velocity.x > 0.07f)
-            {
-                Debug.LogError("Jumpboost Bug");
-            }
             jumpDirVector = velocity;
             yVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
             isJumping = true;
@@ -105,11 +106,16 @@ public class PlayerMovement : MonoBehaviour
     void GetPlayerXZVelocity()    {
         float xMovement = Input.GetAxis("Horizontal");
         float zMovement = Input.GetAxis("Vertical");
-        xAxis = xMovement;
-        zAxis = zMovement;
+        
+        Vector3 input = new Vector3(xMovement, 0.0f, zMovement);
+        input = transform.TransformDirection(input);
+        input = Vector3.ClampMagnitude(input, 1.0f);
+        zAxis = input.z;
+        xAxis = input.x;
+
         if (isGrounded)
         {
-            Vector3 tempVector = transform.right * xMovement + transform.forward * zMovement;
+            Vector3 tempVector = input;
             tempVector.Normalize();
             tempVector *= moveSpeed;
             // velocity.Normalize();
@@ -120,11 +126,23 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
+            Vector3 tempVector = Vector3.zero;
+            velocity += input;
+            velocity.Normalize();
+            velocity *= accel;
 
-            Vector3 tempVector = transform.right * xMovement + transform.forward * zMovement;
-            tempVector.Normalize();
-            tempVector *= moveSpeed;
-            velocity = jumpDirVector;
+            if (input.z == 0)
+            {
+                velocity.z = Mathf.SmoothDamp(velocity.z, 0f, ref zVelocity, dampSpeed);
+            }
+            if (input.x == 0)
+            {
+                velocity.x = Mathf.SmoothDamp(velocity.x, 0f, ref xVelocity, dampSpeed);
+            }
+
+            //tempVector.Normalize();
+            //tempVector *= moveSpeed;
+            //velocity = tempVector;
         }
     }
     float TimeToHighestJumpPoint()

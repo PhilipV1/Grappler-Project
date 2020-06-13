@@ -2528,6 +2528,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   charController: {fileID: 0}
+  playerCam: {fileID: 963194225}
   airMultiplier: 0.4
   timeToHighestPoint: 0
   airTimeCounter: 0
