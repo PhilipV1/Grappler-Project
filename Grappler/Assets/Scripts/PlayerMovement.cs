@@ -218,7 +218,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hitInfo)){
-
+                Vector3 rayHit = hitInfo.point;
             }
         }
     }
