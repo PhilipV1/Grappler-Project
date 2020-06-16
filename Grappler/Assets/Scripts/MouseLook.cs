@@ -5,23 +5,21 @@ using UnityEngine.Assertions.Must;
 
 public class MouseLook : MonoBehaviour
 {
-    public enum CameraRotation {RotationY, RotationX }
-    public CameraRotation rotationType;
+    //
     public float mouseSpeed;
     public Transform playerObject;
     public Transform cameraHolder;
 
-
+    //Rotation around X axis for the camera
     float pitch = 0.0f;
 
-    float maxAngle = 85.0f;
-
-
+    //Uncomment if jumping camera clamping is used
+    //float maxAngle = 85.0f;
 
     // Start is called before the first frame update
     void Start()
     {
-        mouseSpeed = 60.0f;
+        mouseSpeed = 30.0f;
     }
 
     // Update is called once per frame
@@ -35,7 +33,6 @@ public class MouseLook : MonoBehaviour
         //xRot(pitch) needs to be assigned as -= mouseY to get the correct rotation values(yRot(yaw) does not seem to function the same)
         pitch -= mouseY;
         pitch = Mathf.Clamp(pitch, -80, 80);
-
 
         float playerEulerY = playerObject.transform.rotation.eulerAngles.y;
   
@@ -55,12 +52,17 @@ public class MouseLook : MonoBehaviour
         }
         else
         {
-            Quaternion tempRotY = this.transform.localRotation * horizontalQ;
+            //Can enable if statement for clamped camera while jumping
 
-            if (Quaternion.Angle(playerObject.rotation, tempRotY)<maxAngle)
-            {
-                this.transform.localRotation = tempRotY;              
-            }
+            Quaternion tempRotY = this.transform.localRotation * horizontalQ;
+            this.transform.localRotation = tempRotY;
+            //Player rotation
+            playerObject.transform.eulerAngles = new Vector3(playerObject.transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, playerObject.rotation.eulerAngles.z);
+
+            //if (Quaternion.Angle(playerObject.rotation, tempRotY)<maxAngle)
+            //{
+
+            //}
             this.transform.eulerAngles = new Vector3(pitch, this.transform.eulerAngles.y, 0);
         }
 

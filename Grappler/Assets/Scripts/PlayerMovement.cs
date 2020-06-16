@@ -30,12 +30,16 @@ public class PlayerMovement : MonoBehaviour
     }
 
     [HideInInspector]public CharacterController charController;
+    public GameObject playerCam;
 
     //Variable for storing the player state
     private PlayerState state;
 
     //Movement speed multiplier for moving in x and z axis
     float moveSpeed = 10.0f;
+    float dampSpeed = 0.3f;
+    float xVelocity = 0.0f;
+    float zVelocity = 0.0f;
 
     //Jumping and gravity variables
     float jumpHeight = 3.5f;
@@ -53,6 +57,7 @@ public class PlayerMovement : MonoBehaviour
     
     //Vector storing the velocity of the character
     [SerializeField]Vector3 velocity;
+    private Vector3 refVelocity = Vector3.zero;//Reference vector for the Smoothdamp function
 
     //using the Physics.CheckSphere to see if the player is grounded. The function will only check against anything that is masked as ground
     public Transform groundSphere;
@@ -98,21 +103,47 @@ public class PlayerMovement : MonoBehaviour
             isJumping = true;
         }
     }
-    void GetPlayerXZVelocity()
-    {
+    void GetPlayerXZVelocity()    {
         float xMovement = Input.GetAxis("Horizontal");
         float zMovement = Input.GetAxis("Vertical");
-        xAxis = xMovement;
-        zAxis = zMovement;
+        
+        //Storing the input in a vector and then make sure that the direction is relative to the object
+        Vector3 input = new Vector3(xMovement, 0.0f, zMovement);
+        input = transform.TransformDirection(input);
+        input = Vector3.ClampMagnitude(input, 1.0f);
+
+        //Variables for displaying in the inspector
+        zAxis = input.z;
+        xAxis = input.x;
+
         if (isGrounded)
         {
-            velocity = transform.right * xMovement * moveSpeed * Time.deltaTime + transform.forward * zMovement * moveSpeed * Time.deltaTime;
+            velocity = input;       
+            velocity *= moveSpeed;
         }
         else
-        {
-            //Vector3 tempVector = transform.right * xMovement * moveSpeed * Time.deltaTime + transform.forward * zMovement *moveSpeed * Time.deltaTime;
-            velocity = jumpDirVector;
+        {  
+            if (Vector3.Dot(input.normalized, transform.forward.normalized) > -0.1f)
+            {
+                 velocity += input * moveSpeed;
+            }
+            else
+            {
+                velocity = Vector3.SmoothDamp(velocity, new Vector3(0f, velocity.y, 0f), ref refVelocity, dampSpeed);
+            }
+
+            if (input.z == 0)
+            {
+                velocity.z = Mathf.SmoothDamp(velocity.z, 0f, ref zVelocity, dampSpeed);
+            }
+            if (input.x == 0)
+            {
+                velocity.x = Mathf.SmoothDamp(velocity.x, 0f, ref xVelocity, dampSpeed);
+            }
+
+            
         }
+        velocity = Vector3.ClampMagnitude(velocity, 10.0f);
     }
     float TimeToHighestJumpPoint()
     {
@@ -135,14 +166,14 @@ public class PlayerMovement : MonoBehaviour
         if (!isGrounded)
         {
             yVelocity += gravity * Time.deltaTime;
-            velocity.y = yVelocity * Time.deltaTime;
+            velocity.y = yVelocity;
         }
         else
         {
             velocity.y = -0.1f * Time.deltaTime;
         }
 
-        charController.Move(velocity);
+        charController.Move(velocity * Time.deltaTime);
     }
     //Checks if the player is currently on the ground
   public bool CheckIfGrounded()
@@ -161,6 +192,7 @@ public class PlayerMovement : MonoBehaviour
                 //Checking if the player touches the ground after jumping and sets isJumping to false and resets the air timer
                 isJumping = false;
                 jumpDirVector = Vector3.zero;
+                
                 totalAirTime = airTimeCounter;
                 ResetAirTimer();
                 return true;
