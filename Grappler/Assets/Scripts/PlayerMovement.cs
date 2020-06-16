@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
 
@@ -12,8 +13,8 @@ public class PlayerMovement : MonoBehaviour
     private enum PlayerState
     {
         Normal,
-        HookThrow,
-        HookFlying
+        GrapplingShot,
+        GrapplingFlying
     };
 
 
@@ -201,7 +202,7 @@ public class PlayerMovement : MonoBehaviour
         return false;
     }
 
-   public void ResetPosition()
+    public void ResetPosition()
     {
         Vector3 worldOrigin = new Vector3(0.0f, 5.5f, 0.0f);
         velocity = Vector3.zero;
@@ -210,5 +211,15 @@ public class PlayerMovement : MonoBehaviour
         charController.transform.position = worldOrigin;
         charController.transform.rotation = Quaternion.identity;
         charController.enabled = true;
+    }
+
+    private void CheckGrapplingShot()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hitInfo)){
+
+            }
+        }
     }
 }
