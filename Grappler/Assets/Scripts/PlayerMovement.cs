@@ -149,15 +149,16 @@ public class PlayerMovement : MonoBehaviour
             velocity *= moveSpeed;
         }
         else
-        {  
-            if (Vector3.Dot(input.normalized, transform.forward.normalized) > -0.1f)
-            {
-                 velocity += input * moveSpeed;
-            }
-            else
-            {
-                velocity = Vector3.SmoothDamp(velocity, new Vector3(0f, velocity.y, 0f), ref refVelocity, dampSpeed);
-            }
+        {
+            velocity += input * moveSpeed;
+            //if (Vector3.Dot(input.normalized, velocity.normalized) > -0.1f)
+            //{
+            //     velocity += input * moveSpeed;
+            //}
+            //else
+            //{
+            //    velocity = Vector3.SmoothDamp(velocity, new Vector3(0f, velocity.y, 0f), ref refVelocity, dampSpeed);
+            //}
 
             if (input.z == 0)
             {
