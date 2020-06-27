@@ -254,10 +254,12 @@ public class PlayerMovement : MonoBehaviour
     }
     private void SpawnRope()
     {
-        Vector3 positionOrigin = lineOrigin.transform.position;
-        Vector3 positionDest = hookPosition;
-        grapplingRope.SetPosition(0, positionOrigin);
-        grapplingRope.SetPosition(1, positionDest);
+        Vector3[] positions = new Vector3[2];
+        positions[0] = lineOrigin.transform.position;
+        positions[1] = hookPosition;
+
+        grapplingRope.SetPositions(positions);
+
     }
     private void ResetState()
     {
