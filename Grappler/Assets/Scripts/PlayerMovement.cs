@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
+using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -32,6 +34,8 @@ public class PlayerMovement : MonoBehaviour
 
     [HideInInspector]public CharacterController charController;
     public GameObject playerCam;
+    public LineRenderer grapplingRope;
+    public GameObject rayCastHitDebug;
 
     //Variable for storing the player state
     private PlayerState state;
@@ -52,6 +56,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]float airTimeCounter;
     [SerializeField] float totalAirTime;
 
+    //Grappling hook variables
+    Vector3 hookPosition;
+    public GameObject lineOrigin;
+
     //Debug for Vertical and Horizontal axis
     [SerializeField]float xAxis;
     [SerializeField]float zAxis;
@@ -68,6 +76,7 @@ public class PlayerMovement : MonoBehaviour
     //Check if the player is currently jumping or grounded
     [SerializeField]bool isJumping;
     public bool isGrounded;
+    public bool isHooking;
 
     // Start is called before the first frame update
     void Start()
@@ -85,13 +94,30 @@ public class PlayerMovement : MonoBehaviour
     {
         if (GameManager.gameState == GameManager.GameState.Playing)
         {
-            if (state == PlayerState.Normal)
+
+            switch (state)
             {
-                isGrounded = CheckIfGrounded();
-                GetPlayerXZVelocity();
-                GetJumpVelocity();
-                MovePlayer();
+                default:
+                case PlayerState.Normal:
+                    isGrounded = CheckIfGrounded();
+                    GetPlayerXZVelocity();
+                    GetJumpVelocity();
+                    CheckGrapplingShot();
+                    MovePlayer();
+                    break;
+                case PlayerState.GrapplingShot:
+                    SpawnRope();
+                    ResetState();
+                    break;
             }
+                
+            //if (state == PlayerState.Normal)
+            //{
+            //    isGrounded = CheckIfGrounded();
+            //    GetPlayerXZVelocity();
+            //    GetJumpVelocity();
+            //    MovePlayer();
+            //}
         }
     }
     //Makes the character jump based on a formula using jump height
@@ -217,9 +243,27 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hitInfo)){
-                Vector3 rayHit = hitInfo.point;
+            if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hitInfo)){
+                hookPosition = hitInfo.point;
+                state = PlayerState.GrapplingShot;
+                rayCastHitDebug.transform.position = hitInfo.point;
+                isHooking = true;
             }
+        }
+    }
+    private void SpawnRope()
+    {
+        Vector3 positionOrigin = lineOrigin.transform.position;
+        Vector3 positionDest = hookPosition;
+        grapplingRope.SetPosition(0, positionOrigin);
+        grapplingRope.SetPosition(1, positionDest);
+    }
+    private void ResetState()
+    {
+        if (state == PlayerState.GrapplingShot)
+        {
+            state = PlayerState.Normal;
+            isHooking = false;
         }
     }
 }
