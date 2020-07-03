@@ -59,6 +59,8 @@ public class PlayerMovement : MonoBehaviour
     //Grappling hook variables
     Vector3 hookPosition;
     public GameObject lineOrigin;
+    Vector3[] positions;
+    float hookSpeed = 40;
 
     //Debug for Vertical and Horizontal axis
     [SerializeField]float xAxis;
@@ -87,6 +89,8 @@ public class PlayerMovement : MonoBehaviour
         isJumping = false;
         airTimeCounter = 0f;
         totalAirTime = 0f;
+        positions = new Vector3[2];
+        grapplingRope.enabled = false; ;
     }
 
     // Update is called once per frame
@@ -107,6 +111,7 @@ public class PlayerMovement : MonoBehaviour
                     break;
                 case PlayerState.GrapplingShot:
                     SpawnRope();
+                    Grapple();
                     ResetState();
                     break;
             }
@@ -193,8 +198,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!isGrounded)
         {
-            yVelocity += gravity * Time.deltaTime;
-            velocity.y = yVelocity;
+            ApplyGravity(state);
         }
         else
         {
@@ -249,24 +253,55 @@ public class PlayerMovement : MonoBehaviour
                 state = PlayerState.GrapplingShot;
                 rayCastHitDebug.transform.position = hitInfo.point;
                 isHooking = true;
+                grapplingRope.enabled = true;
             }
         }
     }
     private void SpawnRope()
     {
-        Vector3[] positions = new Vector3[2];
         positions[0] = lineOrigin.transform.position;
         positions[1] = hookPosition;
 
         grapplingRope.SetPositions(positions);
+    }
+    private void Grapple()
+    {
+        positions[0] = lineOrigin.transform.position;
+        velocity.y = -0.1f * Time.deltaTime;
+
+        Vector3 playerDirection = (hookPosition - charController.transform.position).normalized;
+
+        velocity = playerDirection * hookSpeed;
+        charController.Move(velocity * Time.deltaTime);
+
+        if (Vector3.Distance(charController.transform.position, hookPosition) < 1.0f)
+        {
+            state = PlayerState.Normal;
+            
+        }
 
     }
     private void ResetState()
     {
-        if (state == PlayerState.GrapplingShot)
+        if (state == PlayerState.GrapplingShot && Input.GetKeyDown(KeyCode.E))
         {
             state = PlayerState.Normal;
             isHooking = false;
+            grapplingRope.enabled = false;
+            velocity.y = -0.1f * Time.deltaTime;
+        }
+    }
+    private void ApplyGravity(PlayerState state)
+    {
+        if (state == PlayerState.Normal)
+        {
+            yVelocity += gravity * Time.deltaTime;
+            velocity.y = yVelocity;
+        }
+        else
+        {
+            yVelocity += (gravity / 2) * Time.deltaTime;
+            velocity.y = yVelocity;
         }
     }
 }
