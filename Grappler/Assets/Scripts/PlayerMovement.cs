@@ -48,7 +48,7 @@ public class PlayerMovement : MonoBehaviour
 
     //Jumping and gravity variables
     float jumpHeight = 3.5f;
-    float gravity = -9.81f * 2;
+    float gravity = -9.81f * 4;
     float yVelocity = 0.0f;
     public float airMultiplier = 0.6f;
     Vector3 jumpDirVector;
@@ -72,7 +72,7 @@ public class PlayerMovement : MonoBehaviour
 
     //using the Physics.CheckSphere to see if the player is grounded. The function will only check against anything that is masked as ground
     public Transform groundSphere;
-    float groundRadius = 0.6f;
+    float groundRadius = 0.52f;
     public LayerMask groundMask;
    
     //Check if the player is currently jumping or grounded
@@ -274,10 +274,12 @@ public class PlayerMovement : MonoBehaviour
         velocity = playerDirection * hookSpeed;
         charController.Move(velocity * Time.deltaTime);
 
-        if (Vector3.Distance(charController.transform.position, hookPosition) < 1.0f)
+        if (Vector3.Distance(charController.transform.position, hookPosition) < 2.0f)
         {
             state = PlayerState.Normal;
-            
+            isHooking = false;
+            grapplingRope.enabled = false;
+            yVelocity = -0.1f;
         }
 
     }
@@ -288,6 +290,7 @@ public class PlayerMovement : MonoBehaviour
             state = PlayerState.Normal;
             isHooking = false;
             grapplingRope.enabled = false;
+            yVelocity = -0.1f;
             velocity.y = -0.1f * Time.deltaTime;
         }
     }
