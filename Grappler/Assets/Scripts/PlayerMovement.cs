@@ -40,7 +40,7 @@ public class PlayerMovement : MonoBehaviour
     //Variable for storing the player state
     private PlayerState state;
 
-    //Movement speed multiplier for moving in x and z axis
+    //Movement speed multiplier for moving in x and z axis and damp variables
     float moveSpeed = 10.0f;
     float dampSpeed = 0.3f;
     float xVelocity = 0.0f;
@@ -115,14 +115,6 @@ public class PlayerMovement : MonoBehaviour
                     ResetState();
                     break;
             }
-                
-            //if (state == PlayerState.Normal)
-            //{
-            //    isGrounded = CheckIfGrounded();
-            //    GetPlayerXZVelocity();
-            //    GetJumpVelocity();
-            //    MovePlayer();
-            //}
         }
     }
     //Makes the character jump based on a formula using jump height
@@ -156,6 +148,7 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             velocity += input * moveSpeed;
+            //Restriction on backwards movement
             //if (Vector3.Dot(input.normalized, velocity.normalized) > -0.1f)
             //{
             //     velocity += input * moveSpeed;
@@ -198,7 +191,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!isGrounded)
         {
-            ApplyGravity(state);
+            ApplyGravity();
         }
         else
         {
@@ -269,9 +262,11 @@ public class PlayerMovement : MonoBehaviour
         positions[0] = lineOrigin.transform.position;
         velocity.y = -0.1f * Time.deltaTime;
 
-        Vector3 playerDirection = (hookPosition - charController.transform.position).normalized;
 
+        Vector3 playerDirection = (hookPosition - charController.transform.position).normalized;
         velocity = playerDirection * hookSpeed;
+
+
         charController.Move(velocity * Time.deltaTime);
 
         if (Vector3.Distance(charController.transform.position, hookPosition) < 2.0f)
@@ -294,17 +289,9 @@ public class PlayerMovement : MonoBehaviour
             velocity.y = -0.1f * Time.deltaTime;
         }
     }
-    private void ApplyGravity(PlayerState state)
+    private void ApplyGravity()
     {
-        if (state == PlayerState.Normal)
-        {
             yVelocity += gravity * Time.deltaTime;
             velocity.y = yVelocity;
-        }
-        else
-        {
-            yVelocity += (gravity / 2) * Time.deltaTime;
-            velocity.y = yVelocity;
-        }
     }
 }
