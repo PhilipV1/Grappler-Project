@@ -17,6 +17,7 @@ public class PlayerHandler : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             PlayerMovement.Instance.ResetPosition();
+            PlayerMovement.Instance.ResetVelocity();
         }
     }
 }
