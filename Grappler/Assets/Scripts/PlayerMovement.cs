@@ -8,6 +8,7 @@ using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
+    //Setting up a singleton so that this script can be used in any other script
     private static PlayerMovement _instance;
 
     public static PlayerMovement Instance    { get { return _instance; } }
@@ -18,8 +19,6 @@ public class PlayerMovement : MonoBehaviour
         GrapplingShot,
         GrapplingFlying
     };
-
-
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -52,6 +51,8 @@ public class PlayerMovement : MonoBehaviour
     float yVelocity = 0.0f;
     public float airMultiplier = 0.6f;
     Vector3 jumpDirVector;
+    //Variable to keep momentum after releasing the hook in mid air
+    Vector3 airMomentum;
     [SerializeField]float timeToHighestPoint;
     [SerializeField]float airTimeCounter;
     [SerializeField] float totalAirTime;
@@ -60,7 +61,7 @@ public class PlayerMovement : MonoBehaviour
     Vector3 hookPosition;
     public GameObject lineOrigin;
     Vector3[] positions;
-    float hookSpeed = 40;
+    
 
     //Debug for Vertical and Horizontal axis
     [SerializeField]float xAxis;
@@ -92,13 +93,11 @@ public class PlayerMovement : MonoBehaviour
         positions = new Vector3[2];
         grapplingRope.enabled = false; ;
     }
-
     // Update is called once per frame
     void Update()
     {
         if (GameManager.gameState == GameManager.GameState.Playing)
         {
-
             switch (state)
             {
                 default:
@@ -112,7 +111,12 @@ public class PlayerMovement : MonoBehaviour
                 case PlayerState.GrapplingShot:
                     SpawnRope();
                     Grapple();
-                    ResetState();
+                    ChangeState();
+                    break;
+                case PlayerState.GrapplingFlying:
+                    GetPlayerXZVelocity();
+                    MovePlayer();
+                    ChangeState();
                     break;
             }
         }
@@ -144,20 +148,12 @@ public class PlayerMovement : MonoBehaviour
         {
             velocity = input;       
             velocity *= moveSpeed;
+            velocity = Vector3.ClampMagnitude(velocity, 10.0f);
         }
         else
         {
             velocity += input * moveSpeed;
-            //Restriction on backwards movement
-            //if (Vector3.Dot(input.normalized, velocity.normalized) > -0.1f)
-            //{
-            //     velocity += input * moveSpeed;
-            //}
-            //else
-            //{
-            //    velocity = Vector3.SmoothDamp(velocity, new Vector3(0f, velocity.y, 0f), ref refVelocity, dampSpeed);
-            //}
-
+            //Damping the movementspeed in the air to prevent a full stop when releasing movement keys
             if (input.z == 0)
             {
                 velocity.z = Mathf.SmoothDamp(velocity.z, 0f, ref zVelocity, dampSpeed);
@@ -166,10 +162,9 @@ public class PlayerMovement : MonoBehaviour
             {
                 velocity.x = Mathf.SmoothDamp(velocity.x, 0f, ref xVelocity, dampSpeed);
             }
-
-            
+            velocity = Vector3.ClampMagnitude(velocity, 10.0f);
         }
-        velocity = Vector3.ClampMagnitude(velocity, 10.0f);
+        
     }
     float TimeToHighestJumpPoint()
     {
@@ -197,8 +192,14 @@ public class PlayerMovement : MonoBehaviour
         {
             velocity.y = -0.1f * Time.deltaTime;
         }
-
+        velocity += airMomentum;
         charController.Move(velocity * Time.deltaTime);
+        if (airMomentum.magnitude > 0.0f)
+        {
+            Vector3 refVector = Vector3.zero;
+            Vector3.SmoothDamp(airMomentum, Vector3.zero, ref refVector, 5.0f);
+
+        }
     }
     //Checks if the player is currently on the ground
   public bool CheckIfGrounded()
@@ -262,9 +263,12 @@ public class PlayerMovement : MonoBehaviour
         positions[0] = lineOrigin.transform.position;
         velocity.y = -0.1f * Time.deltaTime;
 
-
+        float hookSpeedMultiplier = 3f;
+        float hookSpeed = Vector3.Distance(hookPosition, charController.transform.position);
         Vector3 playerDirection = (hookPosition - charController.transform.position).normalized;
-        velocity = playerDirection * hookSpeed;
+        hookSpeed = Mathf.Clamp(hookSpeed, 15f, 35f);
+
+        velocity = playerDirection * hookSpeed * hookSpeedMultiplier;
 
 
         charController.Move(velocity * Time.deltaTime);
@@ -278,20 +282,52 @@ public class PlayerMovement : MonoBehaviour
         }
 
     }
-    private void ResetState()
+    private void ChangeState()
     {
+        switch (state)
+        {
+            case PlayerState.Normal:
+                break;
+            case PlayerState.GrapplingShot:
+                GrapplingShotState();
+                break;
+            case PlayerState.GrapplingFlying:
+                GrapplingFlyingState();
+                break;
+            default:
+                break;
+        }
+
+    }
+    private void GrapplingShotState()
+    {
+        //When the grappling hook is released change the playerstate, disable rope visuals and reset gravity
         if (state == PlayerState.GrapplingShot && Input.GetKeyDown(KeyCode.E))
         {
-            state = PlayerState.Normal;
+            state = PlayerState.GrapplingFlying;
             isHooking = false;
             grapplingRope.enabled = false;
             yVelocity = -0.1f;
             velocity.y = -0.1f * Time.deltaTime;
         }
     }
+
+    private void GrapplingFlyingState()
+    {
+        //Storing momentum after releasing the hook to prevent a sudden stop in momentum
+        airMomentum = velocity;
+        airMomentum.y = 0f;
+        if (isGrounded)
+        {
+            state = PlayerState.Normal;
+        }
+    }
+
     private void ApplyGravity()
     {
             yVelocity += gravity * Time.deltaTime;
             velocity.y = yVelocity;
     }
+
 }
+
