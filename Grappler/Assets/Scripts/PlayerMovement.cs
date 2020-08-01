@@ -315,6 +315,8 @@ public class PlayerMovement : MonoBehaviour
     private void GrapplingFlyingState()
     {
         //Storing momentum after releasing the hook to prevent a sudden stop in momentum
+        //FIX MOMENTUM BUG
+        //Air momentum sometimes sets the player velocity to an unexpected high value
         airMomentum = velocity;
         airMomentum.y = 0f;
         if (isGrounded)
