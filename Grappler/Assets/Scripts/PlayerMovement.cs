@@ -45,7 +45,7 @@ public class PlayerMovement : MonoBehaviour
     float xVelocity = 0.0f;
     float zVelocity = 0.0f;
     //Reference vector to dampen the airmomentum vector
-    private Vector3 airRefVector;
+    private Vector3 airRefVector = Vector3.zero;
 
     //Jumping and gravity variables
     float jumpHeight = 3.5f;
@@ -57,8 +57,8 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 airMomentum;
 
     [SerializeField]float timeToHighestPoint;
-    [SerializeField]float airTimeCounter;
-    [SerializeField]float totalAirTime;
+    [SerializeField] float airTimeCounter = 0f;
+    [SerializeField]float totalAirTime = 0f;
 
     //Grappling hook variables
     Vector3 hookPosition;
@@ -92,11 +92,8 @@ public class PlayerMovement : MonoBehaviour
         charController = GetComponent<CharacterController>();
         timeToHighestPoint = TimeToHighestJumpPoint();
         isJumping = false;
-        airTimeCounter = 0f;
-        totalAirTime = 0f;
         positions = new Vector3[2];
         grapplingRope.enabled = false;
-        airRefVector = Vector3.zero;
     }
     // Update is called once per frame
     void Update()
