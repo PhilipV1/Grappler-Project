@@ -35,7 +35,7 @@ public class MouseLook : MonoBehaviour
         pitch = Mathf.Clamp(pitch, -80, 80);
 
         float playerEulerY = playerObject.transform.rotation.eulerAngles.y;
-  
+
         //Using quaternions
         Quaternion horizontalQ = Quaternion.AngleAxis(mouseX, playerObject.up);
 
@@ -46,7 +46,7 @@ public class MouseLook : MonoBehaviour
 
             //Handle rotation around the Y axis with quaternions to be able to clamp properly while also keeping the quaternion multiplication using only one axis(preventing Z-axis rotation)
             Quaternion tempCamRot = this.transform.localRotation * horizontalQ;
-            
+
             this.transform.localRotation = tempCamRot;
             this.transform.eulerAngles = new Vector3(pitch, this.transform.eulerAngles.y, 0);
         }
@@ -65,7 +65,6 @@ public class MouseLook : MonoBehaviour
             //}
             this.transform.eulerAngles = new Vector3(pitch, this.transform.eulerAngles.y, 0);
         }
-
     }
     void SetPositionToPlayerModel()
     {
