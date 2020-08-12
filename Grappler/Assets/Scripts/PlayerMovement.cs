@@ -85,6 +85,7 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask groundMask;
    
     //Check if the player is currently jumping or grounded
+    [Header("Boolean Checks")]
     [SerializeField]bool isJumping;
     public bool isGrounded;
     public bool isHooking;
@@ -224,20 +225,6 @@ public class PlayerMovement : MonoBehaviour
                 return true;
             } 
         }
-        //if (isJumping)
-        //{
-        //    StartAirTimer();
-        //    //Having two if statements in case of unnecessary computing with the CheckSphere
-        //    if (Physics.CheckSphere(groundSphere.position, groundRadius, groundMask) && airTimeCounter >= timeToHighestPoint)
-        //    {
-        //        //Checking if the player touches the ground after jumping and sets isJumping to false and resets the air timer
-        //        isJumping = false;
-        //        jumpDirVector = Vector3.zero;
-        //        totalAirTime = airTimeCounter;
-        //        ResetAirTimer();
-        //        return true;
-        //    }
-        //}
         return false;
     }
 
@@ -276,7 +263,9 @@ public class PlayerMovement : MonoBehaviour
     {
         airMomentum = Vector3.zero;
         positions[0] = lineOrigin.transform.position;
+        //Resetting gravity each time a new grapple starts
         velocity.y = -0.1f * Time.deltaTime;
+
         //Setting the hookspeed direction, speed and speed multipliers
         float hookSpeedMultiplier = 3f;
         float hookSpeed = Vector3.Distance(hookPosition, charController.transform.position);
@@ -348,6 +337,11 @@ public class PlayerMovement : MonoBehaviour
     {
         velocity = Vector3.zero;
         airMomentum = Vector3.zero;
+    }
+
+    void Shoot()
+    {
+
     }
 }
 
