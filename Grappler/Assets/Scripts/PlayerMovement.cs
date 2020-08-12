@@ -216,11 +216,14 @@ public class PlayerMovement : MonoBehaviour
             return Physics.CheckSphere(groundSphere.position, groundRadius, groundMask);
         }
         //Checking if grounded when in the air allowing 
-        if (Physics.CheckSphere(groundSphere.position, groundRadius, groundMask) && !isGrounded)
+        else
         {
-            isJumping = false;
-            return true;
-        } 
+            if (Physics.CheckSphere(groundSphere.position, groundRadius, groundMask) && !isGrounded)
+            {
+                isJumping = false;
+                return true;
+            } 
+        }
         //if (isJumping)
         //{
         //    StartAirTimer();
@@ -256,7 +259,7 @@ public class PlayerMovement : MonoBehaviour
             if (Physics.Raycast(playerCam.transform.position, playerCam.transform.forward, out RaycastHit hitInfo, maxDistance, groundMask)){
                 hookPosition = hitInfo.point;
                 state = PlayerState.GrapplingShot;
-                rayCastHitDebug.transform.position = hitInfo.point;
+              //  rayCastHitDebug.transform.position = hitInfo.point;
                 isHooking = true;
                 grapplingRope.enabled = true;
             }
