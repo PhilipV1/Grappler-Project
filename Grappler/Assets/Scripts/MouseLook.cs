@@ -52,17 +52,12 @@ public class MouseLook : MonoBehaviour
         }
         else
         {
-            //Can enable if statement for clamped camera while jumping
-
+            //Rotation around the Y axis using quaternion, this enables a clamp possibility on the Y axis rotation
             Quaternion tempRotY = this.transform.localRotation * horizontalQ;
             this.transform.localRotation = tempRotY;
             //Player rotation
             playerObject.transform.eulerAngles = new Vector3(playerObject.transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, playerObject.rotation.eulerAngles.z);
 
-            //if (Quaternion.Angle(playerObject.rotation, tempRotY)<maxAngle)
-            //{
-
-            //}
             this.transform.eulerAngles = new Vector3(pitch, this.transform.eulerAngles.y, 0);
         }
     }

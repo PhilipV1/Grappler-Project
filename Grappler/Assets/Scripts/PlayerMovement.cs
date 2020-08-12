@@ -51,23 +51,26 @@ public class PlayerMovement : MonoBehaviour
     float jumpHeight = 3.5f;
     float gravity = -9.81f * 4;
     float yVelocity = 0.0f;
-    public float airMultiplier = 0.6f;
+    float airMultiplier = 0.6f;
     Vector3 jumpDirVector;
+
     //Variable to keep momentum after releasing the hook in mid air
     public Vector3 airMomentum;
-
+    [Header("Jump Variables")]
     [SerializeField]float timeToHighestPoint;
     [SerializeField] float airTimeCounter = 0f;
     [SerializeField]float totalAirTime = 0f;
 
     //Grappling hook variables
     Vector3 hookPosition;
+    [Header("Grapple Hook")]
     public GameObject lineOrigin;
     Vector3[] positions;
-    float maxDistance = 50f;
+    float maxDistance = 5000f;
     
 
     //Debug for Vertical and Horizontal axis
+    [Header("Movement")]
     [SerializeField]float xAxis;
     [SerializeField]float zAxis;
     
@@ -76,6 +79,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 refVelocity = Vector3.zero;//Reference vector for the Smoothdamp function
 
     //using the Physics.CheckSphere to see if the player is grounded. The function will only check against anything that is masked as ground
+    [Header("Physics")]
     public Transform groundSphere;
     float groundRadius = 0.52f;
     public LayerMask groundMask;
@@ -167,10 +171,10 @@ public class PlayerMovement : MonoBehaviour
             }
             velocity = Vector3.ClampMagnitude(velocity, 10.0f);
         }
-        
     }
     float TimeToHighestJumpPoint()
     {
+        //Formula for reaching the highest point in a jump
         float fVelocity = 0;
         float iVelocity = Mathf.Sqrt(jumpHeight * -2 * gravity);
         float t = (fVelocity - iVelocity) / gravity;
@@ -200,7 +204,7 @@ public class PlayerMovement : MonoBehaviour
         if (airMomentum.magnitude > 0.0f)
         {       
             //Stops Damping after a certain magnitude
-            airMomentum = Vector3.SmoothDamp(airMomentum, Vector3.zero, ref airRefVector, 0.3f);
+            airMomentum = Vector3.SmoothDamp(airMomentum, Vector3.zero, ref airRefVector, 0.1f);
         }
     }
     //Checks if the player is currently on the ground
@@ -270,7 +274,7 @@ public class PlayerMovement : MonoBehaviour
         airMomentum = Vector3.zero;
         positions[0] = lineOrigin.transform.position;
         velocity.y = -0.1f * Time.deltaTime;
-
+        //Setting the hookspeed direction, speed and speed multipliers
         float hookSpeedMultiplier = 3f;
         float hookSpeed = Vector3.Distance(hookPosition, charController.transform.position);
         Vector3 playerDirection = (hookPosition - charController.transform.position).normalized;
@@ -279,7 +283,7 @@ public class PlayerMovement : MonoBehaviour
         velocity = playerDirection * hookSpeed * hookSpeedMultiplier;
 
         charController.Move(velocity * Time.deltaTime);
-
+        //Releasing hook when the distance between the player and hookPosition get too close
         if (Vector3.Distance(charController.transform.position, hookPosition) < 2.0f)
         {
             state = PlayerState.Normal;
@@ -287,7 +291,6 @@ public class PlayerMovement : MonoBehaviour
             grapplingRope.enabled = false;
             yVelocity = -0.1f;
         }
-
     }
     private void ChangeState()
     {
@@ -321,15 +324,12 @@ public class PlayerMovement : MonoBehaviour
     private void GrapplingFlyingState()
     {
         //Storing momentum after releasing the hook to prevent a sudden stop in momentum
-        //FIX MOMENTUM BUG
-        //Air momentum does not reset and keeps going in the same direction even after landing.
         CheckGrapplingShot();
         if (state == PlayerState.GrapplingShot) return;
-    
-
         airMomentum = velocity;
         airMomentum.y = 0f;
-        airMomentum = Vector3.ClampMagnitude(airMomentum, 40f);
+        airMomentum = Vector3.ClampMagnitude(airMomentum, 30f);
+
         if (isGrounded)
         {
             state = PlayerState.Normal;
