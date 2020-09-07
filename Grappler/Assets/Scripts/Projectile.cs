@@ -8,9 +8,11 @@ public class Projectile : MonoBehaviour
     float projSpeed = 150f;
     Vector3 force;
     Vector3 startPos;
+    public Vector3 target;
     private Rigidbody rb;
     float currentTime = 0f;
     float totalLifeTime = 3f;
+    
 
     void Start()
     {
@@ -30,7 +32,7 @@ public class Projectile : MonoBehaviour
     }
     void MoveProjectile()
     {
-        force =  this.transform.forward * projSpeed;
+        force =  (target - this.transform.position).normalized * projSpeed;
         rb.AddForce(force, ForceMode.Impulse);
     }
 
