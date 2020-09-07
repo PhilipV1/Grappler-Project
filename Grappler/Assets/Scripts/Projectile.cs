@@ -36,4 +36,9 @@ public class Projectile : MonoBehaviour
         rb.AddForce(force, ForceMode.Impulse);
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        Destroy(gameObject);
+    }
+
 }

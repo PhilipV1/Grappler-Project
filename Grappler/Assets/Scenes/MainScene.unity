@@ -130,7 +130,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 52193719}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ParentRopeJoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8941,7 +8941,7 @@ GameObject:
   - component: {fileID: 940942214}
   - component: {fileID: 940942213}
   - component: {fileID: 940942216}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9039,6 +9039,7 @@ MonoBehaviour:
   gunBarrel: {fileID: 1352714686}
   projPrefab: {fileID: 4843331842806561497, guid: dfc8c0869d8ddd645af653abd18daaa0,
     type: 3}
+  crosshair: {fileID: 584445776}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -11975,7 +11976,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1352714687}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: GunBarrel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
