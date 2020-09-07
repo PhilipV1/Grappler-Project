@@ -35,7 +35,7 @@ public class MouseLook : MonoBehaviour
         pitch = Mathf.Clamp(pitch, -80, 80);
 
         float playerEulerY = playerObject.transform.rotation.eulerAngles.y;
-  
+
         //Using quaternions
         Quaternion horizontalQ = Quaternion.AngleAxis(mouseX, playerObject.up);
 
@@ -46,26 +46,20 @@ public class MouseLook : MonoBehaviour
 
             //Handle rotation around the Y axis with quaternions to be able to clamp properly while also keeping the quaternion multiplication using only one axis(preventing Z-axis rotation)
             Quaternion tempCamRot = this.transform.localRotation * horizontalQ;
-            
+
             this.transform.localRotation = tempCamRot;
             this.transform.eulerAngles = new Vector3(pitch, this.transform.eulerAngles.y, 0);
         }
         else
         {
-            //Can enable if statement for clamped camera while jumping
-
+            //Rotation around the Y axis using quaternion, this enables a clamp possibility on the Y axis rotation
             Quaternion tempRotY = this.transform.localRotation * horizontalQ;
             this.transform.localRotation = tempRotY;
             //Player rotation
             playerObject.transform.eulerAngles = new Vector3(playerObject.transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, playerObject.rotation.eulerAngles.z);
 
-            //if (Quaternion.Angle(playerObject.rotation, tempRotY)<maxAngle)
-            //{
-
-            //}
             this.transform.eulerAngles = new Vector3(pitch, this.transform.eulerAngles.y, 0);
         }
-
     }
     void SetPositionToPlayerModel()
     {
