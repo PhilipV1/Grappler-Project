@@ -37,15 +37,24 @@ public class PlayerGun : MonoBehaviour
 
 
         //Casting a ray to see where the crosshair would hit and taking the position to aim the projectile to that point
-        Ray tempRay = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Ray tempRay = Camera.main.ScreenPointToRay(crosshair.transform.position);
+        
         RaycastHit hit;
         if (Physics.Raycast(tempRay, out hit))
         {
             //Debug ray to see where the player hit
-           // DrawLine(debugLine.GetComponent<LineRenderer>(), tempRay.origin, hit.point);
+            //DrawLine(debugLine.GetComponent<LineRenderer>(), tempRay.origin, hit.point);
+            
             temp.GetComponent<Projectile>().target = hit.point;
         }
-
+        else
+        {
+            Ray crosshairRay = Camera.main.ScreenPointToRay(crosshair.transform.position);
+            Vector3 rayPoint = crosshairRay.GetPoint(1000.0f);
+            Vector3 projDir = (rayPoint - temp.transform.position).normalized;
+            temp.GetComponent<Projectile>().target = rayPoint;
+           // DrawLine(debugLine.GetComponent<LineRenderer>(), crosshairRay.origin, rayPoint);
+        }
     }
 
     void OnCollisionEnter(Collision collision)

@@ -5,13 +5,13 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     // Start is called before the first frame update
-    float projSpeed = 150f;
+    float projSpeed = 200f;
     Vector3 force;
     Vector3 startPos;
     public Vector3 target;
     private Rigidbody rb;
     float currentTime = 0f;
-    float totalLifeTime = 3f;
+    float totalLifeTime = 2f;
     
 
     void Start()
