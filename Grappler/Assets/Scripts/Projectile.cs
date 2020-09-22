@@ -12,6 +12,7 @@ public class Projectile : MonoBehaviour
     private Rigidbody rb;
     float currentTime = 0f;
     float totalLifeTime = 2f;
+    public GameObject particlePrefab;
     
 
     void Start()
@@ -38,6 +39,8 @@ public class Projectile : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        Instantiate(particlePrefab, this.transform.position, this.transform.rotation);
+
         Destroy(gameObject);
     }
 

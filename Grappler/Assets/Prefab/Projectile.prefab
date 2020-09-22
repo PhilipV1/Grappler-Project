@@ -108,6 +108,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {x: 0, y: 0, z: 0}
+  particlePrefab: {fileID: 1475809518765728481, guid: 790f4b70dc495204c973e19c004ab146,
+    type: 3}
 --- !u!54 &8373708677177632148
 Rigidbody:
   m_ObjectHideFlags: 0
